@@ -13,18 +13,18 @@ library(emmeans)
 #Read in each qualtrics file. For SF and Generate conditions, we used two counterbalanced lists so each cue-target pair was presented in the fluent (read) and disfluent conditions (generate or SF font) across participants. 
 
 
-gen1 <- qualtRics::readSurvey("generate1cb.csv") %>%
+gen1 <- qualtRics::read_survey("generate1cb.csv", legacy=TRUE) %>%
   rename(ResponseID="V1")
 
 
 # cb 1 
-gen2 <- qualtRics::readSurvey("generate2cb.csv") %>%
+gen2 <- qualtRics::read_survey("generate2cb.csv", legacy=TRUE) %>%
   rename(ResponseID="V1")
 # cb 2
-sf1 <- qualtRics::readSurvey("sf1cb.csv")%>%
+sf1 <- qualtRics::read_survey("sf1cb.csv", legacy=TRUE) %>%
   rename(ResponseID="V1")
 # Sans F 1
-sf2 <- qualtRics::readSurvey("sf2cb.csv") %>%
+sf2 <- qualtRics::read_survey("sf2cb.csv", legacy=TRUE) %>%
   rename(ResponseID="V1")
 
 #In the code below we extract the relevant information from the qualtrics files we loaded in earlier. 
@@ -53,10 +53,10 @@ sf2 = sf2 %>%
 
 gen1fin <- subset(gen1, gen1$Finished==TRUE | gen1$Progress==99) 
 gen2fin <- subset(gen2, gen2$Finished==TRUE | gen2$Progress==99) 
-gen2fin1 <- gen2fin[sample(nrow(gen2fin), 57), ] # randomly select 58 
+gen2fin1 <- gen2fin[sample(nrow(gen2fin), 58), ] # randomly select 58 
 sf1fin <- subset(sf1, sf1$Finished==TRUE | sf1$Progress==99) #
 sf2fin <- subset(sf2, sf2$Finished==TRUE | sf2$Progress==99) 
-sf2fin1 <- sf2fin[sample(nrow(sf2fin), 57),]
+sf2fin1 <- sf2fin[sample(nrow(sf2fin), 58),]
 
 
 #Qualtrics files are imported in wide format. We want them in long format. The 'gather' function will do this for us. 
@@ -74,19 +74,19 @@ t4=tidyr::gather(sf2fin1, "question", "answer", Q434:Q458)
 
 cb1gen=read.csv("CB1.csv", header=TRUE)
 
-cb1=data.frame(cue=rep(cb1gen$cue1, each=57), target=rep(cb1gen$targ1, each=57), cond=rep(cb1gen$font, each=57))
+cb1=data.frame(cue=rep(cb1gen$cue1, each=58), target=rep(cb1gen$targ1, each=58), cond=rep(cb1gen$font, each=58))
 
 cb2gen=read.csv("CB2.csv", header=TRUE)
 
-cb2=data.frame(cue=rep(cb2gen$cue1, each=57), target=rep(cb2gen$targ1, each=57), cond=rep(cb2gen$font, each=57))
+cb2=data.frame(cue=rep(cb2gen$cue1, each=58), target=rep(cb2gen$targ1, each=58), cond=rep(cb2gen$font, each=58))
 
 cb1sf=read.csv("CB1_SF.csv", header=TRUE)
 
-sfcb1=data.frame(cue=rep(cb1sf$cue1, each=57), target=rep(cb1sf$targ1, each=57), cond=rep(cb1sf$font, each=57))
+sfcb1=data.frame(cue=rep(cb1sf$cue1, each=58), target=rep(cb1sf$targ1, each=58), cond=rep(cb1sf$font, each=58))
 
 cb2sf=read.csv("CB2_SF.csv", header=TRUE)
 
-sfcb2=data.frame(cue=rep(cb2sf$cue1, each=57), target=rep(cb2sf$targ1, each=57), cond=rep(cb2sf$font, each=57))
+sfcb2=data.frame(cue=rep(cb2sf$cue1, each=58), target=rep(cb2sf$targ1, each=58), cond=rep(cb2sf$font, each=58))
 
 
 
