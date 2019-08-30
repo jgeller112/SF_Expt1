@@ -11,14 +11,12 @@ Authors@R:
 Description: Reproduce analysis from Expt 1
 License: What license it uses
 Depends: 
-    dataRetrieval,
-    dplyr,
     ggplot2,
     lubridate,
     tidyr,
     tidyverse, 
     afex, 
     qualtRics, 
-    emmeans 
+    emmeans
 Encoding: UTF-8
 LazyData: true
