@@ -4,11 +4,16 @@ install.packages("tidyverse")
 install.packages("afex")
 install.packages("emmeans")
 install.packages("ggbeeswarm")
+install.packages("hunspell")
+install.packages("tidytext")
+
 
 library(qualtRics)
 library(tidyverse)
 library(afex)
 library(emmeans)
+library(hunspell)
+library(tidytext)
 
 #Read in each qualtrics file. For SF and Generate conditions, we used two counterbalanced lists so each cue-target pair was presented in the fluent (read) and disfluent conditions (generate or SF font) across participants. 
 
@@ -126,8 +131,39 @@ gen12[is.na(gen12)] <- 0 # no response to incorrect
 #We can Combine all the lists, but before we run our statistical analysis, we need to remove two cue-target pairs. There was an error in the generate CB 1 list wherein *train-plane* was presented twice during encoding and *rifle-range* was not presented at all. 
 sfgen<-rbind(gen12, sf12)
 
-sfgen1<- sfgen %>% 
+#auto spellcheck
+
+
+# Extract a list of words
+tokens <- unnest_tokens(tbl = sfgen, output = token, input = answer)
+wordlist <- unique(tokens$token)
+# Spell check the words
+spelling.errors <- hunspell(wordlist)
+spelling.errors <- unique(unlist(spelling.errors))
+spelling.sugg <- hunspell_suggest(spelling.errors, dict = dictionary("en_US"))
+
+
+# Pick the first suggestion
+spelling.sugg <- unlist(lapply(spelling.sugg, function(x) x[1]))
+spelling.dict <- as.data.frame(cbind(spelling.errors,spelling.sugg))
+spelling.dict$spelling.pattern <- paste0("\\b", spelling.dict$spelling.errors, "\\b")
+# Write out spelling dictionary
+
+# Parse features
+tokens <- unnest_tokens(tbl = sfgen, output = token,
+                        input = answer, token = stringr::str_split,
+                        pattern = " |\\, |\\.|\\,|\\;")
+
+tokens$token <- trimws(tokens$token,
+                       which = c("both", "left", "right"),
+                       whitespace = "[ \t\r\n]")
+tokens$acc <-ifelse(tokens$target==tokens$token, 1, 0)
+
+sfgen1<- tokens %>% 
   dplyr::filter(target!="plane", target!="rifle")
+
+tokens$acc <-ifelse(tokens$target==tokens$token, 1, 0)
+
 
 ## get aggreagte recall per subject, condition, and dis
 sfgenagg <- sfgen1 %>% 
