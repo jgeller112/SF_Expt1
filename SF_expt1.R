@@ -118,22 +118,10 @@ sf12$condition <- "Sans Forgetica"
 
 
 
-# quick and dirty recall analysis
-#takes the target word correctly spelled and matched it to response subject entered. It does not allow for incorrecly spelled words, but am working on it. 
-
-sf12$acc<-ifelse(sf12$target==sf12$answer, 1, 0)
-sf12[is.na(sf12)] <- 0 # no response to incorrect
-
-gen12$acc <-ifelse(gen12$target==gen12$answer, 1, 0)
-
-gen12[is.na(gen12)] <- 0 # no response to incorrect
-
 #We can Combine all the lists, but before we run our statistical analysis, we need to remove two cue-target pairs. There was an error in the generate CB 1 list wherein *train-plane* was presented twice during encoding and *rifle-range* was not presented at all. 
 sfgen<-rbind(gen12, sf12)
 
 #auto spellcheck
-
-
 # Extract a list of words
 tokens <- unnest_tokens(tbl = sfgen, output = token, input = answer)
 wordlist <- unique(tokens$token)
@@ -154,25 +142,22 @@ tokens <- unnest_tokens(tbl = sfgen, output = token,
                         input = answer, token = stringr::str_split,
                         pattern = " |\\, |\\.|\\,|\\;")
 
-tokens$token <- trimws(tokens$token,
-                       which = c("both", "left", "right"),
-                       whitespace = "[ \t\r\n]")
 tokens$acc <-ifelse(tokens$target==tokens$token, 1, 0)
+
+#error in expt these targets were not presented
 
 sfgen1<- tokens %>% 
   dplyr::filter(target!="plane", target!="rifle")
 
 tokens$acc <-ifelse(tokens$target==tokens$token, 1, 0)
-
+#exact match accuracy
 
 ## get aggreagte recall per subject, condition, and dis
 sfgenagg <- sfgen1 %>% 
   dplyr::group_by(ResponseID, condition, dis) %>%
   dplyr::summarise(accuracy=mean(acc))
 
-
-
-
+#perform mixed ANOVA
 a1 <- aov_ez("ResponseID", "accuracy", sfgenagg, 
              within = c("dis"), between = c("condition")) # 2 X 2 Mixed ANOVA
 
@@ -190,6 +175,7 @@ print(af2)
 
 ls1 <- emmeans(a1, c("dis"), by="condition") # get the simple effects test for signifcant interaction. 
 
+#pairwise comparison
 flex1=pairs(ls1)
 
 kable(flex1)
