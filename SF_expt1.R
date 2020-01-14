@@ -151,35 +151,23 @@ sfgen1<- tokens %>%
 
 tokens$acc <-ifelse(tokens$target==tokens$token, 1, 0)
 #exact match accuracy
-
+tokens[is.na(tokens)] <- 0 #change all NAs to 0 
 ## get aggreagte recall per subject, condition, and dis
-sfgenagg <- sfgen1 %>% 
-  dplyr::group_by(ResponseID, condition, dis) %>%
-  dplyr::summarise(accuracy=mean(acc))
-
-#perform mixed ANOVA
-a1 <- aov_ez("ResponseID", "accuracy", sfgenagg, 
-             within = c("dis"), between = c("condition")) # 2 X 2 Mixed ANOVA
-
-#plot the results
-
-kable(nice(a1))
-
-af1=afex_plot(a1, x = "dis", panel = "condition", 
-              error = "within",  data_geom=ggplot2::geom_violin, mapping = c("color", "fill"))
-
-af2=af1+
-  theme_set(theme_light(base_size = 14)) + labs(x="Disfluency", y="Cued Recall Performance")
-
-print(af2)
-
-ls1 <- emmeans(a1, c("dis"), by="condition") # get the simple effects test for signifcant interaction. 
-
-#pairwise comparison
-flex1=pairs(ls1)
-
-kable(flex1)
 
 
+full_model=glmer(acc~condition*dis + (1+ dis|ResponseID) + (1+dis+condition|target), data=tokens, contrasts = list(dis="contr.sum", condition="contr.sum"), family="binomial", control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=100000)))
+
+write.csv(tokens, file="sfgenerate_final.csv")
+
+ef1 <- effect("condition:dis", full_model) #take final glmer model 
+summary(ef1)
+x1 <- as.data.frame(ef1)
+
+bold <- element_text(face = "bold", color = "black", size = 14) #axis bold
+p<- ggplot(x1, aes(dis, fit, fill=dis))+ facet_grid(~condition)+ 
+  geom_bar(stat="identity", position="dodge") + 
+  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, position=position_dodge(width=0.9),color="red") + theme_bw(base_size=14)+labs(y="Target Recall (proporition correct)", x="Disfluency") + 
+  theme(legend.position = "none") +
+  scale_fill_manual(values=c("grey", "black")) + ggplot2::coord_cartesian(ylim = c(0, 1))
 
 
