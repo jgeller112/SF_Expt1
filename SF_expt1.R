@@ -149,13 +149,12 @@ tokens$acc <-ifelse(tokens$target==tokens$token, 1, 0)
 sfgen1<- tokens %>% 
   dplyr::filter(target!="plane", target!="rifle")
 
-tokens$acc <-ifelse(tokens$target==tokens$token, 1, 0)
+sfgen1$acc <-ifelse(sfgen1$target==sfgen1$token, 1, 0)
 #exact match accuracy
-tokens[is.na(tokens)] <- 0 #change all NAs to 0 
+sfgen1[is.na(sfgen1)] <- 0 #change all NAs to 0 
 ## get aggreagte recall per subject, condition, and dis
 
-
-full_model=glmer(acc~condition*dis + (1+ dis|ResponseID) + (1+dis+condition|target), data=tokens, contrasts = list(dis="contr.sum", condition="contr.sum"), family="binomial", control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=100000)))
+full_model=glmer(acc~condition*dis + (1+ dis|ResponseID) + (0+dis+condition|target), data=sfgen1, contrasts = list(dis="contr.sum", condition="contr.sum"), family="binomial", control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=100000)))
 
 write.csv(tokens, file="sfgenerate_final.csv")
 
