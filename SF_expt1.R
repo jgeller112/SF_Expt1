@@ -166,7 +166,7 @@ x1 <- as.data.frame(ef1)
 bold <- element_text(face = "bold", color = "black", size = 14) #axis bold
 p<- ggplot(x1, aes(dis, fit, fill=dis))+ facet_grid(~condition)+ 
   geom_bar(stat="identity", position="dodge") + 
-  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, position=position_dodge(width=0.9),color="red") + theme_bw(base_size=14)+labs(y="Target Recall (proporition correct)", x="Disfluency") + 
+  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2, position=position_dodge(width=0.9),color="red") + theme_bw(base_size=14)+labs(y="Proporition Recalled on Final Test", x="Disfluency") + 
   theme(legend.position = "none") +
   scale_fill_manual(values=c("grey", "black")) + ggplot2::coord_cartesian(ylim = c(0, 1))
 
